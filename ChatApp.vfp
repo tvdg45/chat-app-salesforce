@@ -1,0 +1,45 @@
+<apex:page docType="html-5.0" Controller="ChatAppController" title="Chat app">
+    <style>
+        #message img, #thread img { width: 96%; margin-left: 1%; margin-right: 1%; }
+        #thread img { width: 98%; margin-left: 1%; margin-right: 1%; }
+        label, input, select, input[type="button"], #message, textarea { font-size: 12pt; }
+        label { color: black; }
+        #message[contentEditable=false]:hover, #message[contentEditable=false] label:hover { cursor: not-allowed; }
+        input[type="text"], select, #message, textarea { background: white; border: 2px solid; border-color: #5A403B; }
+        input[type="button"] { background: #5A403B; color: white; padding: 4px 3px; font-weight: bold; border: 2px solid; border-color: #5A403B; border-radius: 3px; }
+        input[type="button"]:hover, input[type="button"]:focus { background: #512600; color: white; padding: 4px 3px; font-weight: bold; border: 2px solid; border-color: #512600; border-radius: 3px; cursor: pointer; }
+        input[type="button"]:disabled { cursor: not-allowed; padding: 4px 3px; font-weight: bold; border-radius: 3px; }
+        a { color: #512600; text-decoration: none; }
+        a:visited { color: #512600; text-decoration: none; }
+        a:hover, a:focus { cursor: pointer; color: #5A403B; text-decoration: underline; }
+        label:hover { cursor: text; }
+    </style>
+	<script type="text/javascript" src="https://www.timothysdigitalsolutions.com/backstretch/js/jquery-3.2.1.js"></script>
+	<script type="text/javascript" src="https://www.timothysdigitalsolutions.com/backstretch/js/jquery.min.js"></script>
+	<script type="text/javascript" src="https://www.timothysdigitalsolutions.com/backstretch/js/jquery.backstretch.js"></script>
+    <script type="text/javascript" src="https://chat-app-node-1.herokuapp.com/socket.io/socket.io.js"></script>
+    <script>
+    	var admin_session = "";
+    	
+    	var socket = io.connect("https://chat-app-node-1.herokuapp.com");
+    	
+    	
+		socket.on('log_other_users_out', function(data) {
+    		
+            admin_session = data;
+            
+            flush_conversation();
+    	});
+        
+    	function flush_conversation() {
+            
+            flushConversation(admin_session);
+        }
+    </script>
+    <apex:form >
+        <apex:actionFunction name="flushConversation" action="{!flushConversation}" reRender="view">
+            <apex:param id="adminSession" name="adminSession" value="" />
+        </apex:actionFunction>
+        <apex:outputText value="{!showApplication}" escape="false"></apex:outputText>
+    </apex:form>
+</apex:page>
