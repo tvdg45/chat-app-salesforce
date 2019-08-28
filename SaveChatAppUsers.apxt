@@ -1,0 +1,72 @@
+trigger SaveChatAppUsers on ChatAppUser__c (before insert, before update, after insert, after update, after delete) {
+
+    if (Trigger.isBefore) {
+        
+        if (Trigger.isInsert) {
+            
+            ChatAppController.validateChatAppUser(Trigger.new);
+        }
+        
+        if (Trigger.isUpdate) {
+            
+            ChatAppController.validateChatAppUser(Trigger.new);
+        }
+    }
+    
+    if (Trigger.isAfter) {
+        
+        if (Trigger.isInsert) {
+            
+            List<String> firstName = new List<String>();
+            List<String> lastName = new List<String>();
+            List<String> email = new List<String>();
+            List<String> userId = new List<String>();
+            
+            for (ChatAppUser__c eachChatAppUser: Trigger.new) {
+                
+                firstName.add(eachChatAppUser.FirstName__c);
+                lastName.add(eachChatAppUser.LastName__c);
+                email.add(eachChatAppUser.Email__c);
+                userId.add(eachChatAppUser.User__c);
+            }
+            
+            ChatAppController.addUsersToOtherServer(firstName, lastName, email, userId);
+        }
+        
+        if (Trigger.isUpdate) {
+            
+            List<String> firstName = new List<String>();
+            List<String> lastName = new List<String>();
+            List<String> email = new List<String>();
+            List<String> userId = new List<String>();
+            
+            for (ChatAppUser__c eachChatAppUser: Trigger.new) {
+                
+                firstName.add(eachChatAppUser.FirstName__c);
+                lastName.add(eachChatAppUser.LastName__c);
+                email.add(eachChatAppUser.Email__c);
+                userId.add(eachChatAppUser.User__c);
+            }
+            
+            ChatAppController.changeUsersOnOtherServer(firstName, lastName, email, userId);
+        }
+        
+        if (Trigger.isDelete) {
+            
+            List<String> firstName = new List<String>();
+            List<String> lastName = new List<String>();
+            List<String> email = new List<String>();
+            List<String> userId = new List<String>();
+            
+            for (ChatAppUser__c eachChatAppUser: Trigger.old) {
+                
+                firstName.add(eachChatAppUser.FirstName__c);
+                lastName.add(eachChatAppUser.LastName__c);
+                email.add(eachChatAppUser.Email__c);
+                userId.add(eachChatAppUser.User__c);
+            }
+            
+            ChatAppController.deleteUsersFromOtherServer(firstName, lastName, email, userId);
+        }
+    }
+}
