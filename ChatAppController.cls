@@ -1,4 +1,4 @@
-public class ChatAppController {
+public with sharing class ChatAppController {
     
     //This method initializes a connection to the REST API.
     @future(callout=true)
@@ -74,10 +74,8 @@ public class ChatAppController {
                 
                 if (eachChatAppUserToBeSaved.User__c != null) {
                     
-                    if (eachChatAppUserToBeSaved.FirstName__c == eachSavedChatAppUser.FirstName__c
-                        && eachChatAppUserToBeSaved.LastName__c == eachSavedChatAppUser.LastName__c
-                        && eachChatAppUserToBeSaved.Email__c == eachSavedChatAppUser.Email__c
-                        && eachChatAppUserToBeSaved.User__c == eachSavedChatAppUser.User__c) {
+                    if (eachChatAppUserToBeSaved.Email__c == eachSavedChatAppUser.Email__c
+                        || eachChatAppUserToBeSaved.User__c == eachSavedChatAppUser.User__c) {
                         
                         eachChatAppUserToBeSaved.addError('You already have that user assigned to this chat app. ' +
                                                          'Please choose a different user.');
@@ -178,19 +176,34 @@ public class ChatAppController {
         
         String output = '';
         String requestUrl = '';
+        Boolean isPermittedUser = false;
         
         Http http = new Http();
         HttpRequest httpRequest = new HttpRequest();
         HttpResponse httpResponse = new HttpResponse();
         
-        requestUrl = 'admin_session=' + UserInfo.getUserId();
-        httpRequest.setEndpoint('https://chat-app-java.herokuapp.com/admin-chat-interface');
-        httpRequest.setMethod('POST');
-        httpRequest.setBody(requestUrl);
+        //If the logged user comes up as a positive match for permitted users, he/she will be granted access.
+        for (ChatAppUser__c eachChatAppUser: [SELECT Id FROM ChatAppUser__c WHERE User__c = :UserInfo.getUserId()]) {
+            
+            isPermittedUser = true;
+        }
         
-        httpResponse = http.send(httpRequest);
-        
-        output += httpResponse.getBody();
+        if (isPermittedUser) {
+            
+            httpRequest.setTimeout(120000);
+            
+            requestUrl = 'admin_session=' + UserInfo.getUserId();
+            httpRequest.setEndpoint('https://chat-app-java.herokuapp.com/admin-chat-interface');
+            httpRequest.setMethod('POST');
+            httpRequest.setBody(requestUrl);
+            
+            httpResponse = http.send(httpRequest);
+            
+            output += httpResponse.getBody();            
+        } else {
+            
+            output += '<label><b>You do not have permission to use this application.</b></label>';
+        }
         
         return output;
     }
